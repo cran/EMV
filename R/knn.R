@@ -1,4 +1,4 @@
-knn <-function(m,k=max(dim(m)[1]*0.01,2),na.rm=TRUE,nan.rm=TRUE,inf.rm=TRUE)
+knn <-function(m,k=max(dim(m)[1]*0.01,2),na.rm=TRUE,nan.rm=TRUE,inf.rm=TRUE, correlation=FALSE, dist.bound=FALSE)
 {
   if(is.matrix(m)==FALSE)
     stop(message="not a valid matrix object")
@@ -29,12 +29,20 @@ knn <-function(m,k=max(dim(m)[1]*0.01,2),na.rm=TRUE,nan.rm=TRUE,inf.rm=TRUE)
             vector=as.double(vector),
             nb.col=as.integer(nb.col),
             nb.row=as.integer(nb.row),
-            k=as.integer(k))
+            k=as.integer(k),
+            as.integer(correlation),
+            distance=double(nb.row),
+            as.double(dist.bound))
 
   vector<-result$vector
 ### Still missing values if complete row of missing values
-  vector[vector==missing.code]<-tmp[vector==missing.code]  
-
+  vector[vector==missing.code]<-tmp[vector==missing.code]
+  
+### Remove the non-missing rows for the distances
+  distance<-result$distance[result$distance!=missing.code & result$distance!=-missing.code]
+  row<-(1:nb.row)[result$distance!=missing.code & result$distance!=-missing.code]
+  distance<-cbind(row,distance)
+  
   if(na.rm==FALSE)
     vector[is.na(tmp)==TRUE & is.nan(tmp)==FALSE]<-NA
   
@@ -49,5 +57,5 @@ knn <-function(m,k=max(dim(m)[1]*0.01,2),na.rm=TRUE,nan.rm=TRUE,inf.rm=TRUE)
   
   ##coerce vector back into the matrix
   newdata_matrix(vector , nrow = nb.row, ncol = nb.col, byrow = TRUE)
-  newdata
+  list(data=newdata,distance=distance)
 }

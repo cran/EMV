@@ -1,21 +1,24 @@
 #include <R.h>
 #include <Rmath.h>
 
-
+double code_miss=-9999999;
 
 double stdd(double *vector,int *length, int *is_finite);
 double **dmatrix(int nb_row,int nb_col);
 void mat_vec(double *array_vec,int* nb_row,int *nb_col,double **array);
 void vec_mat(double *array_vec,int* nb_row,int *nb_col,double **array);
-double *dvector(int length);
-int *ivector(int length);
+double *dvector(int length, int init);
+int *ivector(int length, int init);
 double  mean_vec(double *vector,int *length);
 void free_dmatrix(double **array, int nb_row);
-void iintit_vect(int *vector,int length);
+void init_ivector(int *vector, int *length, int  value);
 void quicksort2(double *a, double *b, int *p, int *r);
 int partition2(double *a, double *b, int p, int r);
 int rand_part2(double *a, double*b,  int p, int r);
 int uni_rand(int min,int max);
+void init_dvector(double *vector, int *length, int value);
+double  sum_vec(double *vector,int *length);
+
 
 /****************************************************************************************************/
 /*                                                                   stdd                                                                                                  */
@@ -38,13 +41,13 @@ double stdd(double *vector,int *length, int *is_finite)
   
   
   x_bar=mean_vec(vector,length);
-  if(x_bar==-99)
-    return(-99);
+  if(x_bar==code_miss)
+    return(code_miss);
   else
     {
       for(i=0;i<*length;i++)
 	{
-	  if(vector[i]!=-99)
+	  if(vector[i]!=code_miss)
 	    {
 	      count=count+1;
 	      sum=sum+(vector[i]-x_bar)*(vector[i]-x_bar);
@@ -58,7 +61,7 @@ double stdd(double *vector,int *length, int *is_finite)
 	}
       else
 	{
-	  return(-99);
+	  return(code_miss);
 	}
     }
 }
@@ -101,19 +104,19 @@ void mat_vec(double *array_vec,int* nb_row,int *nb_col,double **array)
 }
 
 /****************************************************************************************************/
-/*                                                                   iintit_vec                                                                                          */
+/*                                                                   init_ivector                                                                                       */
 /*  Purpose:   Initialize a vector of type int to zero                                                                                                */
 /* Argument description:                                                                                                                                       */
 /* vector: The vector to initialize                                                                                                                            */
 /* length: the length of the vector                                                                                                                          */
 /****************************************************************************************************/ 
 
-void iintit_vect(int *vector,int length)
+void init_ivector(int *vector,int *length, int  value)
 {
   int i;
 
-  for(i=0;i<length;i++)
-    vector[i]=0;
+  for(i=0;i<*length;i++)
+    vector[i]=value;
 }
 
 /****************************************************************************************************/
@@ -129,9 +132,10 @@ double **dmatrix(int nb_row,int nb_col)
   int i,j;
 
   /* Allocate the memory */
-  array=(double**)malloc((nb_row)*sizeof(double*));
+  array=Calloc(nb_row,double*);
+
   for(i=0;i<nb_row;i++)
-    array[i]=(double*)malloc((nb_col)*sizeof(double));
+    array[i]=Calloc(nb_col, double);
 
   /* Initialize to zero*/
   for(i=0;i<nb_row;i++)
@@ -145,19 +149,20 @@ double **dmatrix(int nb_row,int nb_col)
 /*  Purpose:  Allocate the memory for a vector of type double                                                                              */
 /* Argument description:                                                                                                                                       */
 /* length: The length of the vector                                                                                                                         */
+/* init: The value to initialize the vector                                                                                                                 */
 /****************************************************************************************************/ 
 
-double *dvector(int length)
+double *dvector(int length, int init)
 {
   int i;
   double *vector;
 
   /* Allocate the memory */
-  vector=(double*)malloc(length * sizeof(double));
+    vector=Calloc(length, double);
   
   /* Initialize the memory */
   for(i=0;i<length;i++)
-    vector[i]=0;
+    vector[i]=init;
 
   return(vector);
 }
@@ -167,20 +172,21 @@ double *dvector(int length)
 /*  Purpose:  Allocate the memory for a vector of type integer                                                                              */
 /* Argument description:                                                                                                                                       */
 /* length: The length of the vector                                                                                                                         */
+/* init: The value to initialize the vector                                                                                                                 */
 /****************************************************************************************************/ 
 
 
-int *ivector(int length)
+int *ivector(int length, int init)
 {
   int i;
   int *vector;
 
   /* Allocate the memory */
-  vector=(int*)malloc(length * sizeof(int));
-  
+  vector=Calloc(length, int);
+
   /* Initialize the memory */
   for(i=0;i<length;i++)
-    vector[i]=0;
+    vector[i]=init;
 
   return(vector);
 }
@@ -201,7 +207,7 @@ double  mean_vec(double *vector,int *length)
 
   for(i=0;i<*length;i++)
     {
-      if(vector[i]!=-99)
+      if(vector[i]!=code_miss)
 	{
 	  count=count+1;
 	  sum=sum+vector[i];
@@ -213,7 +219,7 @@ double  mean_vec(double *vector,int *length)
     }
   else
     {
-      return(-99);
+      return(code_miss);
     }
   
 }
@@ -232,9 +238,9 @@ void free_dmatrix(double **array, int nb_row)
 
   int i;
   for(i=0;i<nb_row;i++)
-    free(array[i]);
+    Free(array[i]);
 
-  free(array);
+  Free(array);
 }
 /****************************************************************************************************/
 /*                                                                   quicksort2                                                                                        */
@@ -287,7 +293,9 @@ int partition2(double *a, double *b, int p, int r)
 	  b[j]=temp;
 	}
       else
-	return(j);
+	{
+	  return(j);
+	}
     }
 
 }
@@ -305,7 +313,7 @@ int rand_part2(double *a, double*b,  int p, int r)
   b[p]=b[i];
   b[i]=temp;
 
-  partition2(a,b,p,r);
+  return(partition2(a,b,p,r));
 
 }
 
@@ -320,9 +328,60 @@ int uni_rand(int min,int max)
 
 
   GetRNGstate();
-  rand_nb=(int)(unif_rand()*(max+1-min)+min);
+  rand_nb=(int)(unif_rand()*(max-min)+min);
   PutRNGstate();
   
   return(rand_nb);
 
+}
+
+
+/****************************************************************************************************/
+/*                                                              init_dvector                                                                                           */
+/*  Purpose:  Initialize a vector of type double                                                                                                       */
+/* Argument description:                                                                                                                                       */
+/* vector : The vector                                                                                                                                             */
+/* length: The length of the vector                                                                                                                         */
+/* value: The value to initialize it with                                                                                                                    */
+/****************************************************************************************************/ 
+
+void init_dvector(double *vector, int *length, int value)
+{
+  int i;
+
+ 
+  /* Initialize to value */
+  for(i=0;i<*length;i++)
+    vector[i]=value;
+}
+
+/****************************************************************************************************/
+/*                                                                sum _vec                                                                                             */
+/*  Purpose:  Return the sum  of vector (remove the missing values)                                                                   */
+/* Argument description:                                                                                                                                       */
+/* vector : The sample vector                                                                                                                                 */
+/* length: The length of the vector                                                                                                                         */
+/****************************************************************************************************/ 
+
+double  sum_vec(double *vector,int *length)
+{
+  int i,count=0;
+  double sum=0;
+
+  for(i=0;i<*length;i++)
+    {
+      if(vector[i]!=code_miss)
+	{
+	  count=count+1;
+	  sum=sum+vector[i];
+	}
+    }
+  if (count>0)
+    {
+      return(sum);
+    }
+  else
+    {
+      return(code_miss);
+    }
 }
