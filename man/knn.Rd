@@ -6,7 +6,7 @@
   neighboors algorithm. Missing values can be either -Inf,Inf, NA, NaN.
 }
 \usage{
-knn(m,k=max(dim(data)[1]*0.01,2),na.rm=TRUE,nan.rm=TRUE,inf.rm=TRUE,correlation=FALSE, dist.bound=FALSE)
+knn(m,k=max(dim(m)[1]*0.01,2),na.rm=TRUE,nan.rm=TRUE,inf.rm=TRUE,correlation=FALSE, dist.bound=FALSE)
 }
 \arguments{
   \item{m}{a numeric matrix that contains the missing values to be estimated}

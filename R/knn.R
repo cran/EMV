@@ -3,7 +3,7 @@ knn <-function(m,k=max(dim(m)[1]*0.01,2),na.rm=TRUE,nan.rm=TRUE,inf.rm=TRUE, cor
   if(is.matrix(m)==FALSE)
     stop(message="not a valid matrix object")
  
-  n_dim(m)[1]
+  n<-dim(m)[1]
 
 ### at least 2 to compute the mean 
   if(k<2)
@@ -11,10 +11,10 @@ knn <-function(m,k=max(dim(m)[1]*0.01,2),na.rm=TRUE,nan.rm=TRUE,inf.rm=TRUE, cor
 
 ### at most n-1 neighboors
   if(k>n)
-    k_n-1
+    k<-n-1
     
-  nb.col_dim(m)[2]
-  nb.row_dim(m)[1]
+  nb.col<-dim(m)[2]
+  nb.row<-dim(m)[1]
 
 ###code when linking to C
   missing.code<--9999999
@@ -25,7 +25,7 @@ knn <-function(m,k=max(dim(m)[1]*0.01,2),na.rm=TRUE,nan.rm=TRUE,inf.rm=TRUE, cor
 ###replace the missing values by -9999999 (C code) 
   vector[is.finite(vector)==FALSE]<-missing.code
   
-  result_.C("knnc",
+  result<-.C("knnc",
             vector=as.double(vector),
             nb.col=as.integer(nb.col),
             nb.row=as.integer(nb.row),
@@ -56,6 +56,6 @@ knn <-function(m,k=max(dim(m)[1]*0.01,2),na.rm=TRUE,nan.rm=TRUE,inf.rm=TRUE, cor
     vector[is.nan(tmp)==TRUE]<-NaN
   
   ##coerce vector back into the matrix
-  newdata_matrix(vector , nrow = nb.row, ncol = nb.col, byrow = TRUE)
+  newdata<-matrix(vector , nrow = nb.row, ncol = nb.col, byrow = TRUE)
   list(data=newdata,distance=distance)
 }
