@@ -1,0 +1,53 @@
+knn <-function(m,k=max(dim(m)[1]*0.01,2),na.rm=TRUE,nan.rm=TRUE,inf.rm=TRUE)
+{
+  if(is.matrix(m)==FALSE)
+    stop(message="not a valid matrix object")
+ 
+  n_dim(m)[1]
+
+### at least 2 to compute the mean 
+  if(k<2)
+    stop(message="k should be bigger than 1")
+
+### at most n-1 neighboors
+  if(k>n)
+    k_n-1
+    
+  nb.col_dim(m)[2]
+  nb.row_dim(m)[1]
+
+###code when linking to C
+  missing.code<--9999999
+  
+  vector<-as.double(t(m))
+  tmp<-vector
+  
+###replace the missing values by -9999999 (C code) 
+  vector[is.finite(vector)==FALSE]<-missing.code
+  
+  result_.C("knnc",
+            vector=as.double(vector),
+            nb.col=as.integer(nb.col),
+            nb.row=as.integer(nb.row),
+            k=as.integer(k))
+
+  vector<-result$vector
+### Still missing values if complete row of missing values
+  vector[vector==missing.code]<-tmp[vector==missing.code]  
+
+  if(na.rm==FALSE)
+    vector[is.na(tmp)==TRUE & is.nan(tmp)==FALSE]<-NA
+  
+  if(inf.rm==FALSE)
+    {
+      index<-is.finite(tmp)==FALSE & is.na(tmp)==FALSE & is.nan(tmp)==FALSE
+      vector[index]<-tmp[index]
+    }
+  
+  if(nan.rm==FALSE)
+    vector[is.nan(tmp)==TRUE]<-NaN
+  
+  ##coerce vector back into the matrix
+  newdata_matrix(vector , nrow = nb.row, ncol = nb.col, byrow = TRUE)
+  newdata
+}
