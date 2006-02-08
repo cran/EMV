@@ -32,7 +32,7 @@ knn <-function(m,k=max(dim(m)[1]*0.01,2),na.rm=TRUE,nan.rm=TRUE,inf.rm=TRUE, cor
             k=as.integer(k),
             as.integer(correlation),
             distance=double(nb.row),
-            as.double(dist.bound),"EMV")
+            as.double(dist.bound),PACKAGE="EMV")
 
   vector<-result$vector
 ### Still missing values if complete row of missing values
